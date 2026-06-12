@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>400 : RajLakshmi</title>
+<link rel="apple-touch-icon" href="src/RJ_Blue_Logo.png">
+<link rel="icon" type="image/png" href="src/RJ_Blue_Logo.png">
+<style>
+  :root {
+    --bg:          #F2F2F7;
+    --surface:     #FFFFFF;
+    --surface2:    #F2F2F7;
+    --surface3:    #E5E5EA;
+    --border:      rgba(60,60,67,0.12);
+    --label:       #000000;
+    --label-sec:   #3C3C43;
+    --label-ter:   rgba(60,60,67,0.6);
+    --label-quat:  rgba(60,60,67,0.32);
+    --placeholder: rgba(60,60,67,0.28);
+    --blue:        #007AFF;
+    --green:       #34C759;
+    --orange:      #FF9500;
+    --red:         #FF3B30;
+    --indigo:      #5856D6;
+    --font:        -apple-system,"SF Pro Text","SF Pro Display",BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+    --mono:        "SF Mono","Menlo","Courier New",monospace;
+    --r:           16px;
+    --rs:          11px;
+    --sidebar-w:   270px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+  body{
+    background:var(--bg);
+    color:var(--label);
+    font-family:var(--font);
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    overflow-x:hidden;
+  }
+
+  .shell{
+    width:100%;max-width:390px;
+    display:flex;flex-direction:column;
+    min-height:100dvh;
+    position:relative;
+  }
+
+  /* ======= TOP NAV BAR ======= */
+  .top-bar{
+    position:sticky;top:0;z-index:60;
+    height:52px;
+    display:flex;align-items:center;
+    padding:0 16px;gap:12px;
+    background:rgba(242,242,247,0.92);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:0.5px solid var(--border);
+  }
+
+  .hamburger{
+    width:36px;height:36px;
+    background:none;border:none;
+    cursor:pointer;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:5px;padding:6px;
+    border-radius:8px;
+    flex-shrink:0;
+    transition:background .15s;
+  }
+  .hamburger:active{background:var(--surface3);}
+  .hamburger span{
+    display:block;width:20px;height:1.5px;
+    background:var(--label);border-radius:2px;
+  }
+
+  .top-bar-title{
+    font-size:17px;font-weight:600;
+    letter-spacing:-0.3px;
+    color:var(--label);
+  }
+
+  /* ======= SIDEBAR OVERLAY ======= */
+  .overlay{
+    position:fixed;inset:0;
+    z-index:200;
+    background:rgba(0,0,0,0);
+    pointer-events:none;
+    transition:background .28s ease;
+  }
+  .overlay.open{
+    background:rgba(0,0,0,0.4);
+    pointer-events:auto;
+  }
+
+  /* ======= SIDEBAR PANEL ======= */
+  .sidebar{
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:var(--sidebar-w);
+    background:var(--surface);
+    z-index:210;
+    display:flex;flex-direction:column;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow:none;
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  .sidebar.open{
+    transform:translateX(0);
+    box-shadow:6px 0 28px rgba(0,0,0,0.13);
+  }
+
+  .sidebar-head{
+  height:58px;
+  display:flex;align-items:center;
+  padding:0 18px;gap:10px;
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+  background:#1C1C1E;
+}
+  .sidebar-app-icon{
+    width:30px;height:30px;
+    background:#1d1d1f;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .sidebar-app-title{
+  font-size:15px;font-weight:600;
+  color:#FFFFFF;
+  letter-spacing:-0.2px;
+  flex:1;
+}
+  .sidebar-close-btn{
+  width:26px;height:26px;
+  background:rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.7);
+  border:none;border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  flex-shrink:0;
+}
+  .sidebar-close-btn:active{opacity:0.6;}
+
+  .sidebar-nav{
+    flex:1;overflow-y:auto;
+    padding:8px 0;
+  }
+
+  .nav-item{
+    width:100%;
+    display:flex;align-items:center;
+    gap:12px;
+    padding:12px 18px;
+    background:none;border:none;
+    cursor:pointer;
+    text-align:left;
+    position:relative;
+    transition:background .12s;
+  }
+  .nav-item:active{background:var(--surface2);}
+  .nav-item.active{background:var(--surface2);}
+  .nav-item.active::before{
+    content:'';
+    position:absolute;left:0;top:8px;bottom:8px;
+    width:3px;background:var(--blue);
+    border-radius:0 3px 3px 0;
+  }
+
+  .nav-icon-wrap{
+    width:36px;height:36px;
+    border-radius:9px;
+    background:var(--surface3);
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;flex-shrink:0;
+  }
+  .nav-item.active .nav-icon-wrap{background:rgba(0,122,255,0.12);}
+
+  .nav-label{
+    font-size:15px;font-weight:500;
+    color:var(--label-sec);
+    letter-spacing:-0.2px;
+  }
+  .nav-item.active .nav-label{color:var(--blue);font-weight:600;}
+
+  .sidebar-footer{
+    padding:12px 18px;
+    border-top:0.5px solid var(--border);
+    font-size:11px;color:var(--label-quat);
+    letter-spacing:0.2px;
+  }
+
+  /* ======= PAGES ======= */
+  .page{display:none;padding:12px 16px 20px;}
+  .page.active{display:block;}
+
+  /* ======= SHARED COMPONENTS ======= */
+  .sect-row{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px;padding:0 4px;}
+  .sect-row .sect-lbl{font-size:13px;font-weight:600;color:var(--label-ter);text-transform:uppercase;letter-spacing:0.4px;}
+  .sect-row .inline-reset{background:none;border:none;cursor:pointer;color:var(--blue);font-family:var(--font);font-size:14px;font-weight:400;letter-spacing:-0.2px;padding:4px 0;}
+  .sect-row .inline-reset:active{opacity:0.4;}
+
+  .sect{font-size:13px;font-weight:600;color:var(--label-ter);text-transform:uppercase;letter-spacing:0.4px;padding:0 4px;margin:14px 0 6px;}
+  .sect:first-child{margin-top:8px;}
+
+  .card{background:var(--surface);border-radius:var(--r);overflow:hidden;}
+
+  .row{display:flex;align-items:center;padding:0 16px;min-height:50px;border-bottom:0.5px solid var(--border);gap:10px;}
+  .row:last-child{border-bottom:none;}
+  .row-label{font-size:17px;font-weight:400;color:var(--label);flex:1;letter-spacing:-0.3px;}
+  .row-val{font-family:var(--mono);font-size:17px;color:var(--label);letter-spacing:-0.3px;}
+  .row-unit{font-size:17px;color:var(--label-ter);}
+  input.row-val{background:transparent;border:none;outline:none;text-align:right;-webkit-appearance:none;width:130px;}
+  input.row-val::placeholder{color:var(--placeholder);}
+
+  .seg{display:grid;background:var(--surface3);border-radius:var(--rs);padding:2px;gap:2px;}
+  .seg.cols3{grid-template-columns:1fr 1fr 1fr;}
+  .seg.cols2{grid-template-columns:1fr 1fr;}
+  .seg-btn{padding:8px 4px;border:none;background:transparent;color:var(--label-ter);font-family:var(--font);font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;transition:background .18s,color .18s;letter-spacing:-0.1px;}
+  .seg-btn.on{background:var(--surface);color:var(--label);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.14),0 0.5px 1px rgba(0,0,0,0.07);}
+
+  .info-grid{display:grid;border-top:0.5px solid var(--border);}
+  .info-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+  .ig-cell{padding:9px 4px;text-align:center;border-right:0.5px solid var(--border);}
+  .ig-cell:last-child{border-right:none;}
+  .ig-lbl{font-size:9px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+  .ig-val{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--label-sec);letter-spacing:-0.2px;}
+
+  .results{display:grid;grid-template-columns:1fr 1fr;border-top:0.5px solid var(--border);}
+  .rtile{padding:12px 14px 10px;border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);}
+  .rtile:nth-child(even){border-right:none;}
+  .rtile.full{grid-column:1/-1;border-right:none;border-bottom:none;}
+  .rtile:nth-last-child(1):nth-child(odd){border-bottom:none;}
+  .rtile:nth-last-child(2){border-bottom:none;}
+  .rt-lbl{font-size:10px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+  .rt-val{font-size:20px;font-weight:700;color:var(--label);font-family:var(--mono);letter-spacing:-0.5px;line-height:1.2;}
+  .rt-sub{font-size:11px;color:var(--label-ter);font-family:var(--mono);margin-top:3px;letter-spacing:-0.2px;}
+
+  .sl-foot{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--surface2);border-top:0.5px solid var(--border);}
+  .sl-foot span{font-size:12px;color:var(--label-ter);font-family:var(--mono);}
+  .sl-pct{font-weight:600!important;transition:color .25s;}
+
+  .bar-wrap{height:3px;background:var(--surface3);margin:0 12px 12px;border-radius:2px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:2px;background:var(--blue);transition:width .35s cubic-bezier(.23,1,.32,1);}
+
+  .chips{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px;margin-bottom:10px;}
+  .chip{background:var(--surface2);border-radius:var(--rs);padding:9px 6px;text-align:center;}
+  .ch-lbl{font-size:9px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
+  .ch-val{font-size:12px;font-weight:600;color:var(--label-sec);font-family:var(--mono);}
+
+  .rrr-row{display:flex;align-items:center;gap:8px;}
+  .rrr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--surface3);transition:background .25s;}
+
+  .dd-row{display:grid;grid-template-columns:56px 80px 1fr;padding:11px 16px;border-bottom:0.5px solid var(--border);align-items:center;gap:8px;}
+  .dd-row:last-child{border-bottom:none;}
+  .dd-pct{font-family:var(--mono);font-size:15px;font-weight:700;}
+  .dd-amt{font-family:var(--mono);font-size:13px;color:var(--label-ter);}
+  .dd-action{font-size:13px;color:var(--label-sec);letter-spacing:-0.2px;}
+
+  .pl-row{display:grid;grid-template-columns:60px 52px 1fr;padding:10px 16px;border-bottom:0.5px solid var(--border);align-items:center;gap:8px;}
+  .pl-row:last-child{border-bottom:none;}
+  .pl-stage{font-size:13px;font-weight:600;color:var(--label);}
+  .pl-pct{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green);}
+  .pl-trigger{font-size:12px;color:var(--label-ter);}
+  .pl-action{font-size:12px;color:var(--label-sec);letter-spacing:-0.2px;margin-top:1px;}
+
+  .chk-row{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--border);}
+  .chk-row:last-child{border-bottom:none;}
+  .chk-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .chk-text{font-size:15px;color:var(--label-sec);letter-spacing:-0.2px;line-height:1.4;}
+
+  .alloc-row{display:grid;grid-template-columns:1fr 60px 80px 56px;padding:10px 16px;border-bottom:0.5px solid var(--border);align-items:center;gap:6px;}
+  .alloc-row:last-child{border-bottom:none;}
+  .alloc-name{font-size:15px;color:var(--label);letter-spacing:-0.2px;}
+  .alloc-pct{font-family:var(--mono);font-size:14px;color:var(--label-ter);text-align:right;}
+  .alloc-amt{font-family:var(--mono);font-size:14px;color:var(--label-sec);text-align:right;}
+  .alloc-badge{font-size:12px;text-align:right;}
+
+  .cg{color:var(--green)!important;}
+  .co{color:var(--orange)!important;}
+  .cr{color:var(--red)!important;}
+  .cb{color:var(--blue)!important;}
+
+  /* ======= AVG CALC PAGE ======= */
+  .i13-hero{
+    background:var(--surface);border-radius:var(--r);
+    padding:16px;margin-bottom:10px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .calc-icon-wrap{
+    width:46px;height:46px;
+    background:#1d1d1f;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .i13-hero-title{font-size:17px;font-weight:600;letter-spacing:-0.3px;}
+  .i13-hero-sub{font-size:13px;color:var(--label-ter);margin-top:2px;letter-spacing:-0.1px;}
+
+  .i13-add-row{display:flex;align-items:center;padding:14px 12px 12px;gap:8px;}
+  .i13-field{flex:1;}
+  .i13-field label{display:block;font-size:10px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;padding-left:2px;}
+  .i13-input{
+    width:100%;height:42px;
+    background:var(--surface2);
+    border:0.5px solid var(--border);
+    border-radius:10px;
+    padding:0 10px;
+    font-family:var(--mono);font-size:15px;color:var(--label);
+    outline:none;-webkit-appearance:none;-moz-appearance:textfield;
+  }
+  .i13-input::-webkit-outer-spin-button,.i13-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+  .i13-input:focus{border-color:var(--blue);background:var(--surface);}
+  .i13-input::placeholder{color:var(--placeholder);}
+
+  .i13-add-btn{
+    width:42px;height:42px;flex-shrink:0;
+    background:#1d1d1f;border:none;border-radius:10px;
+    color:#fff;font-size:26px;line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    align-self:flex-end;
+    transition:opacity .15s;
+  }
+  .i13-add-btn:active{opacity:0.65;}
+
+  .i13-table-wrap{border-top:0.5px solid var(--border);}
+  .i13-tbl{width:100%;border-collapse:collapse;}
+  .i13-tbl thead th{font-size:9px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.5px;padding:7px 8px;text-align:left;border-bottom:0.5px solid var(--border);}
+  .i13-tbl tbody tr{border-bottom:0.5px solid var(--border);}
+  .i13-tbl tbody tr:last-child{border-bottom:none;}
+  .i13-tbl tbody td{padding:9px 8px;font-family:var(--mono);font-size:13px;color:var(--label-sec);}
+  .td-idx{font-size:11px;color:var(--label-quat);width:20px;}
+  .td-amt{font-weight:600;color:var(--label);}
+  .td-del{text-align:right;}
+  .i13-del-btn{background:none;border:none;cursor:pointer;color:var(--label-quat);font-size:14px;padding:2px 6px;border-radius:6px;transition:color .12s;}
+  .i13-del-btn:active{color:var(--red);}
+
+  .i13-results{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:0.5px solid var(--border);}
+  .i13-rtile{padding:11px 10px 9px;border-right:0.5px solid var(--border);}
+  .i13-rtile:last-child{border-right:none;}
+  .i13-rt-lbl{font-size:9px;font-weight:600;color:var(--label-quat);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+  .i13-rt-val{font-size:17px;font-weight:700;color:var(--label);font-family:var(--mono);letter-spacing:-0.4px;line-height:1.2;}
+  .i13-rt-sub{font-size:10px;color:var(--label-ter);font-family:var(--mono);margin-top:2px;}
+
+  .i13-total-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    margin:10px 0 0;
+    background:#1d1d1f;border-radius:12px;
+    padding:13px 16px;
+  }
+  .i13-total-lbl{font-size:12px;font-weight:500;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.4px;}
+  .i13-total-val{font-family:var(--mono);font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.4px;}
+
+  .i13-empty{padding:22px 16px;text-align:center;font-size:13px;color:var(--label-quat);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ====== OVERLAY ====== -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ====== SIDEBAR ====== -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-app-icon" style="background:none;">
+          <img src="src/RJ_Goldish_Logo.png" style="width:30px;height:30px;border-radius:8px;object-fit:cover;">
+      </div>
+      <span class="sidebar-app-title">RajLakshmi</span>
+      <button class="sidebar-close-btn" onclick="closeSidebar()">&#x2715;</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-calc" onclick="switchTab('calc','Risk Management')">
+        <span class="nav-icon-wrap">📊</span>
+        <span class="nav-label">Risk Management</span>
+      </button>
+      <button class="nav-item" id="nav-rules" onclick="switchTab('rules','Rules')">
+        <span class="nav-icon-wrap">🛡</span>
+        <span class="nav-label">Rules</span>
+      </button>
+      <button class="nav-item" id="nav-check" onclick="switchTab('check','Checklist')">
+        <span class="nav-icon-wrap">✅</span>
+        <span class="nav-label">Checklist</span>
+      </button>
+      <button class="nav-item" id="nav-i13" onclick="switchTab('i13','Avg Price Calc')">
+        <span class="nav-icon-wrap" style="background:rgba(0,0,0,0.06);">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#1d1d1f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2"/>
+            <rect x="7" y="5" width="10" height="3.5" rx="0.8" fill="#1d1d1f" stroke="none"/>
+            <circle cx="8.5" cy="13" r="1" fill="#1d1d1f" stroke="none"/>
+            <circle cx="12" cy="13" r="1" fill="#1d1d1f" stroke="none"/>
+            <circle cx="15.5" cy="13" r="1" fill="#1d1d1f" stroke="none"/>
+            <circle cx="8.5" cy="17" r="1" fill="#1d1d1f" stroke="none"/>
+            <circle cx="12" cy="17" r="1" fill="#1d1d1f" stroke="none"/>
+            <circle cx="15.5" cy="17" r="1" fill="#1d1d1f" stroke="none"/>
+          </svg>
+        </span>
+        <span class="nav-label">Avg Price Calc</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">RajLakshmi © 2026<br>Crafted with ❤️ </div>
+  </div>
+
+  <!-- ====== TOP BAR ====== -->
+  <div class="top-bar">
+    <button class="hamburger" id="hamburger-btn" onclick="openSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="top-bar-title" id="page-title">Risk Management</span>
+  </div>
+
+  <!-- ====== PAGE: RISK MANAGEMENT ====== -->
+  <div class="page active" id="page-calc">
+
+    <div class="sect">Account</div>
+    <div class="card">
+      <div class="row">
+        <span class="row-label">Account Size</span>
+        <input class="row-val" type="text" id="acct" placeholder="4,00,000" inputmode="numeric" oninput="fmtInput(this);onAcctChange()">
+        <span class="row-unit">&#8377;</span>
+      </div>
+      <div class="row">
+        <span class="row-label">Risk Profile</span>
+        <input class="row-val" type="text" id="riskprofile" placeholder="1.5" inputmode="decimal" oninput="onAcctChange()" style="width:80px;">
+        <span class="row-unit">%</span>
+      </div>
+      <div class="row">
+        <span class="row-label">Max Risk / Trade</span>
+        <span class="row-val" id="maxrisk-display" style="color:var(--label-ter);">&#8377;6,000</span>
+      </div>
+    </div>
+
+    <div class="sect">Market Condition</div>
+    <div class="card">
+      <div style="padding:12px 12px 10px;">
+        <div class="seg cols3">
+          <button class="seg-btn bull on" onclick="setMarket('bull')">&#x1F402; Bull</button>
+          <button class="seg-btn side"    onclick="setMarket('side')">&#x2194; Sideways</button>
+          <button class="seg-btn bear"    onclick="setMarket('bear')"><span style="color:#FF3B30;">&#x23C9;</span> &#x1F43B; Bear <span style="color:#34C759;">&#x23CA;</span></button>
+        </div>
+      </div>
+      <div class="info-grid cols3">
+        <div class="ig-cell"><div class="ig-lbl">Risk %</div><div class="ig-val" id="m-risk">1.11%</div></div>
+        <div class="ig-cell"><div class="ig-lbl">Capital Alloc</div><div class="ig-val" id="m-cap-pct">65%</div></div>
+        <div class="ig-cell"><div class="ig-lbl">Deploy Amt</div><div class="ig-val" id="m-deploy">&#8377;2.60L</div></div>
+      </div>
+      <div class="info-grid cols3" style="border-top:0.5px solid var(--border);">
+        <div class="ig-cell"><div class="ig-lbl">Max PSN</div><div class="ig-val" id="m-psn">4</div></div>
+        <div class="ig-cell"><div class="ig-lbl">Rot. Buffer</div><div class="ig-val" id="m-rotbuf">&#8377;39,000</div></div>
+        <div class="ig-cell"><div class="ig-lbl">Loss/Trd</div><div class="ig-val" id="m-loss">&#8377;4,440</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="padding:12px 12px 10px;">
+        <div class="seg cols2">
+          <button class="entry-btn seg-btn on" onclick="setEntry(1)">Entry 1 — Pilot (70%)</button>
+          <button class="entry-btn seg-btn"    onclick="setEntry(2)">Entry 2 — Add-on (30%)</button>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="chip"><div class="ch-lbl">Amount</div><div class="ch-val" id="e-amt">&#8377;38,675</div></div>
+        <div class="chip"><div class="ch-lbl">Per Posn</div><div class="ch-val" id="e-perpsn">&#8377;55,250</div></div>
+        <div class="chip"><div class="ch-val" id="e-alloc" style="font-size:14px;padding-top:4px;">9.7%</div><div class="ch-lbl">of acct</div></div>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill" id="e-bar" style="width:9.7%"></div></div>
+    </div>
+
+    <div class="sect-row">
+      <span class="sect-lbl">Trade Inputs</span>
+      <button class="inline-reset" onclick="resetCalc()">Reset</button>
+    </div>
+    <div class="card">
+      <div class="row">
+        <span class="row-label">LTP</span>
+        <input class="row-val" type="number" id="ltp" placeholder="0.00" inputmode="decimal" step="0.01" oninput="calculate()">
+        <span class="row-unit">&#8377;</span>
+      </div>
+      <div class="row" style="gap:8px;">
+        <span class="row-label" id="sl-label">SL</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--surface3);border-radius:8px;padding:2px;gap:2px;">
+            <button id="sl-type-amt"   onclick="setSLType('amt')"   style="padding:5px 25px;border:none;background:var(--surface);color:var(--label);font-family:var(--font);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.14);white-space:nowrap;">Amt</button>
+            <button id="sl-type-price" onclick="setSLType('price')" style="padding:5px 25px;border:none;background:transparent;color:var(--label-ter);font-family:var(--font);font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;white-space:nowrap;">Price</button>
+          </div>
+          <input class="row-val" type="number" id="sl" placeholder="0.00" inputmode="decimal" step="0.01" oninput="calculate()" style="width:90px;">
+          <span class="row-unit">&#8377;</span>
+        </div>
+      </div>
+      <div class="sl-foot">
+        <span id="sl-hint">Ideal SL Range: 3&#x2013;8%</span>
+        <span class="sl-pct" id="sl-pct" style="color:var(--label-ter);">&#x2014;</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:8px;">
+      <div class="results">
+        <div class="rtile"><div class="rt-lbl">Quantity</div><div class="rt-val" id="r-qty">&#x2014;</div><div class="rt-sub">shares</div></div>
+        <div class="rtile"><div class="rt-lbl">Capital Used</div><div class="rt-val" id="r-cap">&#x2014;</div><div class="rt-sub" id="r-cap-s">of account</div></div>
+        <div class="rtile"><div class="rt-lbl">Risk Amount</div><div class="rt-val" id="r-risk">&#x2014;</div><div class="rt-sub" id="r-risk-s">of max</div></div>
+        <div class="rtile"><div class="rt-lbl">Target T1</div><div class="rt-val" id="r-t1">&#x2014;</div><div class="rt-sub" id="r-t1-s">&#x2265;1.5&#xD7;SL%</div></div>
+        <div class="rtile full">
+          <div class="rt-lbl">Assessment</div>
+          <div class="rrr-row"><div class="rrr-dot" id="rrr-dot"></div><div class="rt-val" id="r-assess" style="font-size:15px;color:var(--label-ter);">Enter trade details above</div></div>
+          <div class="rt-sub" id="r-assess-s">RRR &#x2265; 1.5&#xD7; SL% required</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-calc -->
+
+  <!-- ====== PAGE: RULES ====== -->
+  <div class="page" id="page-rules">
+
+    <div class="sect">&#x1F6E1; Drawdown Rules</div>
+    <div class="card">
+      <div class="dd-row"><span class="dd-pct cr">2%</span><span class="dd-amt" id="dd1">&#8377;8,000</span><span class="dd-action">&#x26A0;&#xFE0F; Review all positions</span></div>
+      <div class="dd-row"><span class="dd-pct co">5%</span><span class="dd-amt" id="dd2">&#8377;20,000</span><span class="dd-action">&#x1F4C9; Exit weakest position</span></div>
+      <div class="dd-row"><span class="dd-pct cr">10%</span><span class="dd-amt" id="dd3">&#8377;40,000</span><span class="dd-action">&#x1F53B; 1 position only, rest cash</span></div>
+      <div class="dd-row" style="background:rgba(255,59,48,0.05);"><span class="dd-pct cr">15%</span><span class="dd-amt" id="dd4">&#8377;60,000</span><span class="dd-action" style="font-weight:600;">&#x1F6D1; FULL CASH &#x2014; Stop &amp; Reassess</span></div>
+    </div>
+
+    <div class="sect">&#x1F3AF; Profit Booking Ladder</div>
+    <div class="card">
+      <div class="pl-row"><span class="pl-stage">Exit 1</span><span class="pl-pct">30%</span><div><div class="pl-trigger">Trigger: +7&#x2013;8% gain</div><div class="pl-action">Book partial profits</div></div></div>
+      <div class="pl-row"><span class="pl-stage">Exit 2</span><span class="pl-pct">40%</span><div><div class="pl-trigger">Trigger: +15% gain</div><div class="pl-action">Main target &#x2014; book bulk</div></div></div>
+      <div class="pl-row"><span class="pl-stage">Exit 3</span><span class="pl-pct">20%</span><div><div class="pl-trigger">Trigger: +22% gain</div><div class="pl-action">Extended target</div></div></div>
+      <div class="pl-row"><span class="pl-stage">Runner</span><span class="pl-pct" style="color:var(--indigo);">10%</span><div><div class="pl-trigger">Trigger: +25%+ trail</div><div class="pl-action">Trail weekly low stop</div></div></div>
+    </div>
+
+    <div class="sect">&#x1F4D0; SL &amp; Target Rules</div>
+    <div class="card">
+      <div class="dd-row"><span class="dd-pct" style="color:var(--green);font-size:17px;">&#x1F402;</span><span class="dd-amt">SL: 3&#x2013;8%</span><span class="dd-action">T1: &#x2265;4.5% &#x2192; &#x2265;16%</span></div>
+      <div class="dd-row"><span class="dd-pct" style="color:var(--orange);font-size:17px;">&#x2194;</span><span class="dd-amt">SL: 3&#x2013;6%</span><span class="dd-action">T1: &#x2265;4.5% &#x2192; &#x2265;9%</span></div>
+      <div class="dd-row"><span class="dd-pct" style="color:var(--red);font-size:17px;">&#x1F43B;</span><span class="dd-amt">SL: 3&#x2013;5%</span><span class="dd-action">T1: &#x2265;4.5% &#x2192; &#x2265;7.5%</span></div>
+    </div>
+
+    <div class="sect">&#x1F4B0; Capital Allocation</div>
+    <div class="card">
+      <div class="alloc-row"><span class="alloc-name">Active Positions</span><span class="alloc-pct">65%</span><span class="alloc-amt" id="ca-active">&#8377;2,60,000</span><span class="alloc-badge" style="color:var(--green);">&#x2705; Deploy</span></div>
+      <div class="alloc-row"><span class="alloc-name">Cash Reserve</span><span class="alloc-pct">30%</span><span class="alloc-amt" id="ca-cash">&#8377;1,20,000</span><span class="alloc-badge" style="color:var(--orange);">&#x1F512; Hold</span></div>
+      <div class="alloc-row"><span class="alloc-name">Never Touch</span><span class="alloc-pct">5%</span><span class="alloc-amt" id="ca-never">&#8377;20,000</span><span class="alloc-badge" style="color:var(--red);">&#x1F6D1; Lock</span></div>
+    </div>
+
+  </div><!-- /page-rules -->
+
+  <!-- ====== PAGE: CHECKLIST ====== -->
+  <div class="page" id="page-check">
+
+    <div class="sect">&#x1F9E0; Pre-Trade Checklist</div>
+    <div class="card">
+      <div class="chk-row"><span class="chk-icon">&#x2705;</span><span class="chk-text">Nifty Weekly / Daily Analysis done</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x2705;</span><span class="chk-text">Volume confirms breakout (1.5&#xD7; avg)</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x2705;</span><span class="chk-text">No earnings in next 2 trading weeks</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x2705;</span><span class="chk-text">Entry is within 4&#x2013;7% (max) of support / below BO Candle</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x2705;</span><span class="chk-text">Position size = max <span id="chk-perpsn">&#8377;55,250</span></span></div>
+      <div class="chk-row"><span class="chk-icon">&#x274C;</span><span class="chk-text">Not averaging down on a loser</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x274C;</span><span class="chk-text">Not chasing stock already up 20%+</span></div>
+      <div class="chk-row"><span class="chk-icon">&#x274C;</span><span class="chk-text">Not buying on Friday</span></div>
+    </div>
+
+    <div class="sect">&#x1F4D0; Entry Rules</div>
+    <div class="card">
+      <div class="chk-row"><span class="chk-icon">1&#xFE0F;&#x20E3;</span><div><div class="chk-text" style="font-weight:600;">Entry 1 &#x2014; Pilot (70%)</div><div style="font-size:13px;color:var(--label-ter);margin-top:2px;">Initial position. Confirm setup before adding more.</div></div></div>
+      <div class="chk-row"><span class="chk-icon">2&#xFE0F;&#x20E3;</span><div><div class="chk-text" style="font-weight:600;">Entry 2 &#x2014; Add-on (30%)</div><div style="font-size:13px;color:var(--label-ter);margin-top:2px;">Only after setup confirmation. Never average down.</div></div></div>
+    </div>
+
+    <div class="sect">&#x1F501; Rotational Buffer</div>
+    <div class="card">
+      <div class="chk-row"><span class="chk-icon">&#x1F4E6;</span><div><div class="chk-text">15% of deployed capital kept as rotational buffer</div><div style="font-size:13px;color:var(--label-ter);margin-top:2px;">For switching between positions, not new bets</div></div></div>
+    </div>
+
+  </div><!-- /page-check -->
+
+  <!-- ====== PAGE: AVG PRICE CALC ====== -->
+  <div class="page" id="page-i13">
+
+    <div class="sect-row">
+      <span class="sect-lbl">Add Lot</span>
+      <button class="inline-reset" onclick="i13Clear()">Clear all</button>
+    </div>
+
+    <div class="card">
+      <div class="i13-add-row">
+        <div class="i13-field">
+          <label>Qty (units)</label>
+          <input class="i13-input" type="number" id="i13-qty" placeholder="e.g. 2" inputmode="numeric" min="1" step="1">
+        </div>
+        <div class="i13-field">
+          <label>Price / unit (&#8377;)</label>
+          <input class="i13-input" type="number" id="i13-price" placeholder="e.g. 59900" inputmode="numeric" min="0" step="1">
+        </div>
+        <button class="i13-add-btn" onclick="i13AddEntry()">+</button>
+      </div>
+
+      <div id="i13-table-wrap" class="i13-table-wrap" style="display:none;">
+        <table class="i13-tbl">
+          <thead><tr><th>#</th><th>Qty</th><th>Price/unit</th><th>Amount</th><th></th></tr></thead>
+          <tbody id="i13-tbody"></tbody>
+        </table>
+      </div>
+      <div id="i13-empty" class="i13-empty">No lots added yet &#x2014; enter qty &amp; price above</div>
+
+      <div class="i13-results">
+        <div class="i13-rtile"><div class="i13-rt-lbl">Total Qty</div><div class="i13-rt-val" id="i13-res-qty">0</div><div class="i13-rt-sub">units</div></div>
+        <div class="i13-rtile"><div class="i13-rt-lbl">Avg Price</div><div class="i13-rt-val" id="i13-res-avg" style="font-size:13px;">&#8377; &#x2014;</div><div class="i13-rt-sub">per unit</div></div>
+        <div class="i13-rtile"><div class="i13-rt-lbl">Lots</div><div class="i13-rt-val" id="i13-res-lots">0</div><div class="i13-rt-sub">entries</div></div>
+      </div>
+    </div>
+
+    <div class="i13-total-bar">
+      <span class="i13-total-lbl">Total Amount</span>
+      <span class="i13-total-val" id="i13-res-total">&#8377;0</span>
+    </div>
+
+  </div><!-- /page-i13 -->
+
+</div><!-- /shell -->
+
+<script>
+/* ====== SIDEBAR ====== */
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Swipe left on sidebar to close
+var _tsX = 0;
+document.getElementById('sidebar').addEventListener('touchstart', function(e){ _tsX = e.touches[0].clientX; }, {passive:true});
+document.getElementById('sidebar').addEventListener('touchend', function(e){ if (_tsX - e.changedTouches[0].clientX > 55) closeSidebar(); }, {passive:true});
+
+function switchTab(t, title) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page-' + t).classList.add('active');
+  document.getElementById('nav-' + t).classList.add('active');
+  document.getElementById('page-title').textContent = title;
+  closeSidebar();
+}
+
+/* ====== RISK MANAGEMENT ====== */
+var BASE = 400000;
+var MKT = {
+  bull: { riskPct:0.0111, slRange:'3\u20138%',  slMin:0.03, slMax:0.08, maxPsn:4, deployPct:0.65, rotBuf:0.15, lossTrd:4440 },
+  side: { riskPct:0.0077, slRange:'3\u20136%',  slMin:0.03, slMax:0.06, maxPsn:2, deployPct:0.30, rotBuf:0.15, lossTrd:3080 },
+  bear: { riskPct:0.0032, slRange:'3\u20135%',  slMin:0.03, slMax:0.05, maxPsn:1, deployPct:0.075,rotBuf:0.15, lossTrd:1280 }
+};
+var curMkt = 'bull', curEntry = 1, slType = 'amt';
+
+function rawNum(id){ return parseFloat(document.getElementById(id).value.replace(/,/g,'')) || 0; }
+function getAcct(){ return rawNum('acct') || 400000; }
+function getRiskPct(){ return parseFloat(document.getElementById('riskprofile').value) || 1.5; }
+function getMaxRisk(){ return getAcct() * (getRiskPct() / 100); }
+function scl(){ return getAcct() / BASE; }
+function fmt(n, d){
+  d = d || 0;
+  if (isNaN(n) || !isFinite(n)) return '\u2014';
+  return '\u20B9' + n.toLocaleString('en-IN', {minimumFractionDigits:d, maximumFractionDigits:d});
+}
+
+function fmtInput(el){
+  var raw = el.value.replace(/,/g,'').replace(/[^0-9]/g,'');
+  if (!raw) return;
+  el.value = parseInt(raw, 10).toLocaleString('en-IN');
+}
+
+function getPerPsn(mktKey){
+  var m = MKT[mktKey];
+  return (getAcct() * m.deployPct * (1 - m.rotBuf)) / m.maxPsn;
+}
+function getEntryAmt(mktKey, entry){
+  return getPerPsn(mktKey) * (entry === 1 ? 0.70 : 0.30);
+}
+
+function setMarket(m){
+  curMkt = m;
+  document.querySelectorAll('.seg-btn.bull,.seg-btn.side,.seg-btn.bear').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelector('.seg-btn.' + m).classList.add('on');
+  updateMktInfo(); calculate();
+}
+function setEntry(e){
+  curEntry = e;
+  document.querySelectorAll('.entry-btn').forEach(function(b){ b.classList.remove('on'); });
+  document.querySelectorAll('.entry-btn')[e-1].classList.add('on');
+  updateEntryInfo(); calculate();
+}
+function onAcctChange(){
+  document.getElementById('maxrisk-display').textContent = fmt(getMaxRisk());
+  updateMktInfo(); updateRulesAmts(); calculate();
+}
+function updateMktInfo(){
+  var m = MKT[curMkt], s = scl(), deploy = getAcct() * m.deployPct;
+  document.getElementById('m-risk').textContent    = (m.riskPct*100).toFixed(2) + '%';
+  document.getElementById('m-cap-pct').textContent = (m.deployPct*100) + '%';
+  document.getElementById('m-deploy').textContent  = fmt(deploy);
+  document.getElementById('m-psn').textContent     = m.maxPsn;
+  document.getElementById('m-rotbuf').textContent  = fmt(deploy * m.rotBuf);
+  document.getElementById('m-loss').textContent    = fmt(m.lossTrd * s);
+  document.getElementById('sl-hint').textContent   = 'Ideal SL Range: ' + m.slRange;
+  var chk = document.getElementById('chk-perpsn');
+  if (chk) chk.textContent = fmt(getPerPsn(curMkt));
+  updateEntryInfo();
+}
+function updateEntryInfo(){
+  var amt = getEntryAmt(curMkt, curEntry), pp = getPerPsn(curMkt), alloc = amt / getAcct() * 100;
+  document.getElementById('e-amt').textContent    = fmt(amt);
+  document.getElementById('e-perpsn').textContent = fmt(pp);
+  document.getElementById('e-alloc').textContent  = alloc.toFixed(1) + '%';
+  document.getElementById('e-bar').style.width    = Math.min(alloc, 100) + '%';
+}
+function updateRulesAmts(){
+  var a = getAcct();
+  document.getElementById('dd1').textContent       = fmt(a*0.02);
+  document.getElementById('dd2').textContent       = fmt(a*0.05);
+  document.getElementById('dd3').textContent       = fmt(a*0.10);
+  document.getElementById('dd4').textContent       = fmt(a*0.15);
+  document.getElementById('ca-active').textContent = fmt(a*0.65);
+  document.getElementById('ca-cash').textContent   = fmt(a*0.30);
+  document.getElementById('ca-never').textContent  = fmt(a*0.05);
+}
+
+function setSLType(type){
+  slType = type;
+  var aB = document.getElementById('sl-type-amt'), pB = document.getElementById('sl-type-price');
+  if (type === 'amt') {
+    aB.style.cssText = 'padding:5px 25px;border:none;background:var(--surface);color:var(--label);font-family:var(--font);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.14);white-space:nowrap;';
+    pB.style.cssText = 'padding:5px 25px;border:none;background:transparent;color:var(--label-ter);font-family:var(--font);font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;white-space:nowrap;';
+    document.getElementById('sl').placeholder = '0.00';
+  } else {
+    pB.style.cssText = 'padding:5px 25px;border:none;background:var(--surface);color:var(--label);font-family:var(--font);font-size:12px;font-weight:600;border-radius:7px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.14);white-space:nowrap;';
+    aB.style.cssText = 'padding:5px 25px;border:none;background:transparent;color:var(--label-ter);font-family:var(--font);font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;white-space:nowrap;';
+    document.getElementById('sl').placeholder = 'e.g. 90';
+  }
+  document.getElementById('sl').value = ''; calculate();
+}
+function getSLAmt(){
+  var ltp = parseFloat(document.getElementById('ltp').value), slRaw = parseFloat(document.getElementById('sl').value);
+  if (isNaN(slRaw) || slRaw <= 0) return NaN;
+  if (slType === 'amt') return slRaw;
+  if (isNaN(ltp) || ltp <= 0) return NaN;
+  var d = ltp - slRaw; return d > 0 ? d : NaN;
+}
+function calculate(){
+  var ltp = parseFloat(document.getElementById('ltp').value), slAmt = getSLAmt();
+  var m = MKT[curMkt], amt = getEntryAmt(curMkt, curEntry), MR = getMaxRisk(), A = getAcct();
+  var pctEl = document.getElementById('sl-pct');
+  if (isNaN(ltp) || ltp <= 0) { clearR(); return; }
+  var qty = Math.floor(amt / ltp), cap = qty * ltp;
+  document.getElementById('r-qty').textContent = qty.toLocaleString('en-IN');
+  document.getElementById('r-qty').style.color = '';
+  document.getElementById('r-cap').textContent = fmt(cap);
+  document.getElementById('r-cap-s').textContent = (cap/A*100).toFixed(1) + '% of account';
+
+  if (!isNaN(slAmt) && slAmt > 0) {
+    var sp = slAmt/ltp*100, risk = qty*slAmt, slPct = slAmt/ltp, t1 = ltp + 1.5*slAmt;
+    pctEl.textContent = sp.toFixed(2) + '%';
+    pctEl.style.color = sp < m.slMin*100 ? 'var(--orange)' : sp > m.slMax*100 ? 'var(--red)' : 'var(--green)';
+    var rEl = document.getElementById('r-risk');
+    rEl.textContent = fmt(risk);
+    rEl.className = 'rt-val ' + (risk > MR ? 'cr' : risk > MR*0.8 ? 'co' : 'cg');
+    document.getElementById('r-risk-s').textContent = (risk/MR*100).toFixed(0) + '% of max';
+    document.getElementById('r-t1').textContent = fmt(t1, 2);
+    document.getElementById('r-t1-s').textContent = '+' + fmt(1.5*slAmt, 2) + ' from LTP';
+    var dot = document.getElementById('rrr-dot'), aEl = document.getElementById('r-assess'), aSub = document.getElementById('r-assess-s');
+    if (risk > MR) {
+      dot.style.background='var(--red)'; aEl.textContent='\u26A0 Risk exceeds max limit'; aEl.style.color='var(--red)'; aSub.textContent='Reduce qty or tighten SL';
+    } else if (slPct < m.slMin || slPct > m.slMax) {
+      dot.style.background='var(--orange)'; aEl.textContent='\u26A1 SL% outside ideal range'; aEl.style.color='var(--orange)'; aSub.textContent='Adjust SL to ' + m.slRange + ' of LTP';
+    } else {
+      dot.style.background='var(--green)'; aEl.textContent='\u2713 Valid \u2014 T1: ' + fmt(t1,2); aEl.style.color='var(--green)'; aSub.textContent='RRR \u2265 1.5\xD7 \xB7 Risk within limit';
+    }
+  } else {
+    var dsl = ltp*m.slMax, sp2 = m.slMax*100, risk2 = qty*dsl, t1b = ltp + 1.5*dsl;
+    pctEl.textContent = sp2.toFixed(0) + '% (max)'; pctEl.style.color = 'var(--orange)';
+    var rEl2 = document.getElementById('r-risk');
+    rEl2.textContent = fmt(risk2); rEl2.className = 'rt-val ' + (risk2 > MR ? 'cr' : risk2 > MR*0.8 ? 'co' : 'cg');
+    document.getElementById('r-risk-s').textContent = 'est. at max SL%';
+    document.getElementById('r-t1').textContent = fmt(t1b, 2);
+    document.getElementById('r-t1-s').textContent = 'est. at max SL%';
+    var dot2 = document.getElementById('rrr-dot'), aEl2 = document.getElementById('r-assess'), aSub2 = document.getElementById('r-assess-s');
+    dot2.style.background='var(--orange)'; aEl2.textContent='\u26A1 Estimated at max SL (' + sp2.toFixed(0) + '%)'; aEl2.style.color='var(--orange)'; aSub2.textContent='Enter SL for exact calculation';
+  }
+}
+function clearR(){
+  ['r-qty','r-cap','r-risk','r-t1'].forEach(function(id){
+    var el = document.getElementById(id); el.textContent = '\u2014'; el.style.color = ''; el.className = 'rt-val';
+  });
+  document.getElementById('r-cap-s').textContent  = 'of account';
+  document.getElementById('r-risk-s').textContent = 'of max';
+  document.getElementById('r-t1-s').textContent   = '\u22651.5\xD7SL%';
+  document.getElementById('r-assess').textContent = 'Enter trade details above';
+  document.getElementById('r-assess').style.color = 'var(--label-ter)';
+  document.getElementById('r-assess-s').textContent = 'RRR \u2265 1.5\xD7 SL% required';
+  document.getElementById('rrr-dot').style.background = 'var(--surface3)';
+}
+function resetCalc(){
+  document.getElementById('ltp').value = '';
+  document.getElementById('sl').value  = '';
+  document.getElementById('sl-pct').textContent = '\u2014';
+  document.getElementById('sl-pct').style.color = 'var(--label-ter)';
+  clearR(); setSLType(slType);
+}
+
+/* ====== AVG PRICE CALC ====== */
+var i13Entries = [];
+function i13Fmt(n){ return '\u20B9' + Math.round(n).toLocaleString('en-IN'); }
+
+function i13AddEntry(){
+  var qEl = document.getElementById('i13-qty'), pEl = document.getElementById('i13-price');
+  var qty = parseFloat(qEl.value), price = parseFloat(pEl.value);
+  if (!qty || qty <= 0 || !price || price <= 0) {
+    [qEl, pEl].forEach(function(el){
+      if (!el.value || parseFloat(el.value) <= 0){ el.style.borderColor = 'var(--red)'; setTimeout(function(){ el.style.borderColor = ''; }, 1200); }
+    });
+    return;
+  }
+  i13Entries.push({qty:qty, price:price}); qEl.value = ''; pEl.value = ''; qEl.focus(); i13Render();
+}
+function i13Delete(idx){ i13Entries.splice(idx, 1); i13Render(); }
+function i13Clear(){ if (!i13Entries.length) return; i13Entries = []; i13Render(); }
+
+function i13Render(){
+  var tbody = document.getElementById('i13-tbody');
+  var tW = document.getElementById('i13-table-wrap');
+  var emp = document.getElementById('i13-empty');
+  tbody.innerHTML = '';
+  if (i13Entries.length === 0) {
+    tW.style.display = 'none'; emp.style.display = 'block';
+  } else {
+    tW.style.display = 'block'; emp.style.display = 'none';
+    i13Entries.forEach(function(e, i){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td class="td-idx">' + (i+1) + '</td>'
+        + '<td>' + e.qty.toLocaleString('en-IN') + '</td>'
+        + '<td>' + i13Fmt(e.price) + '</td>'
+        + '<td class="td-amt">' + i13Fmt(e.qty * e.price) + '</td>'
+        + '<td class="td-del"><button class="i13-del-btn" onclick="i13Delete(' + i + ')">\u2715</button></td>';
+      tbody.appendChild(tr);
+    });
+  }
+  var tQty = i13Entries.reduce(function(s,e){ return s + e.qty; }, 0);
+  var tAmt = i13Entries.reduce(function(s,e){ return s + e.qty * e.price; }, 0);
+  var avg = tQty > 0 ? tAmt / tQty : null;
+  document.getElementById('i13-res-qty').textContent  = tQty.toLocaleString('en-IN');
+  document.getElementById('i13-res-avg').textContent  = avg !== null ? i13Fmt(avg) : '\u20B9 \u2014';
+  document.getElementById('i13-res-lots').textContent = i13Entries.length;
+  document.getElementById('i13-res-total').textContent = tAmt > 0 ? i13Fmt(tAmt) : '\u20B90';
+}
+
+document.getElementById('i13-qty').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('i13-price').focus(); });
+document.getElementById('i13-price').addEventListener('keydown', function(e){ if (e.key === 'Enter') i13AddEntry(); });
+
+/* init */
+updateMktInfo(); updateRulesAmts(); i13Render();
+</script>
+</body>
+</html>
